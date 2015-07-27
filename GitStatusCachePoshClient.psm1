@@ -1,4 +1,4 @@
-if (Get-Module GetStatusCachePoshClient) { return }
+if (Get-Module GitStatusCachePoshClient) { return }
 
 Push-Location $psScriptRoot
 . .\GitStatusCachePoshClient.ps1
