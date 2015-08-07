@@ -2,15 +2,6 @@
 
 PowerShell client for retrieving git repository information from [git-status-cache](https://github.com/cmarcusreid/git-status-cache). Communicates with the cache process via named pipe. 
 
-## TODO ##
-
-**This project is a work-in-progress.**
-
-Major remaining work:
-
-- Installation script to register module with profile.
-- Start cache process automatically.
-
 ## Setup ##
 
 Register `GitStatusCachePoshClient.psm1` with `Import-Module` to make the `Get-GitStatusFromCache` command available.
