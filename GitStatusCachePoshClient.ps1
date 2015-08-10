@@ -37,7 +37,7 @@ function Get-GitStatusFromCache
     $remainingRetries = 1
     while ($remainingRetries -ge 0)
     {
-        $request = new-object psobject -property @{ Version = 1; Path = (Get-Location).Path } | ConvertTo-Json -Compress
+        $request = new-object psobject -property @{ Version = 1; Action = "GetStatus"; Path = (Get-Location).Path } | ConvertTo-Json -Compress
         $encoding = [System.Text.Encoding]::Unicode
         $requestBuffer = $encoding.GetBytes($request)
 
