@@ -54,9 +54,26 @@ function Get-GitStatusFromCache
 
         if (-not $wasPipeBroken)
         {
-            $responseBuffer = new-object byte[] $Global:GitStatusCacheClientPipe.InBufferSize
-            $bytesRead = $Global:GitStatusCacheClientPipe.Read($responseBuffer, 0, $responseBuffer.Length)
-            $response = $encoding.GetString($responseBuffer, 0, $bytesRead)
+            $chunkSize = $Global:GitStatusCacheClientPipe.InBufferSize
+            $totalBytesRead = 0
+            $responseBuffer = $null
+            do
+            {
+                $chunk = new-object byte[] $chunkSize
+                $bytesRead = $Global:GitStatusCacheClientPipe.Read($chunk, 0, $chunkSize)
+                $totalBytesRead += $bytesRead
+
+                if ($responseBuffer -eq $null)
+                {
+                    $responseBuffer = $chunk
+                }
+                else
+                {
+                    $responseBuffer += $chunk
+                }
+            } while ($bytesRead -eq $chunkSize)
+
+            $response = $encoding.GetString($responseBuffer, 0, $totalBytesRead)
             $response = $response.Replace('""', '[]')
             $responseObject = ConvertFrom-Json $response
             return $responseObject
