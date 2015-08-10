@@ -23,7 +23,7 @@ function Initialize-Pipe
         }
 
         $Global:GitStatusCacheClientPipe = new-object System.IO.Pipes.NamedPipeClientStream '.','GitStatusCache','InOut','WriteThrough'
-        $Global:GitStatusCacheClientPipe.Connect(50)
+        $Global:GitStatusCacheClientPipe.Connect(100)
         $Global:GitStatusCacheClientPipe.ReadMode = 'Message'
     }
 }
