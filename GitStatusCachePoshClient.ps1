@@ -13,19 +13,17 @@ function Initialize-Pipe
 
     if ($Global:GitStatusCacheClientPipe -eq $null)
     {
-        $Global:GitStatusCacheClientPipe = new-object System.IO.Pipes.NamedPipeClientStream '.','GitStatusCache','InOut','WriteThrough'
-        try
-        {
-            $Global:GitStatusCacheClientPipe.Connect(50)
-        }
-        catch [system.timeoutexception]
+        $process = Get-Process -Name "GitStatusCache" -ErrorAction SilentlyContinue
+        if ($process -eq $null)
         {
             $scriptDirectory = Split-Path $PSCommandPath -Parent
             $installDirectory = Join-Path $scriptDirectory "bin"
             $exePath = Join-Path $installDirectory "GitStatusCache.exe"
             Start-Process -FilePath $exePath -ArgumentList "--fileLogging -v"
-            $Global:GitStatusCacheClientPipe.Connect(50)
         }
+
+        $Global:GitStatusCacheClientPipe = new-object System.IO.Pipes.NamedPipeClientStream '.','GitStatusCache','InOut','WriteThrough'
+        $Global:GitStatusCacheClientPipe.Connect(50)
         $Global:GitStatusCacheClientPipe.ReadMode = 'Message'
     }
 }
