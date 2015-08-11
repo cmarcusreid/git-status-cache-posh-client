@@ -36,7 +36,7 @@ function Get-GitStatusFromCache
     while ($remainingRetries -ge 0)
     {
         $request = new-object psobject -property @{ Version = 1; Action = "GetStatus"; Path = (Get-Location).Path } | ConvertTo-Json -Compress
-        $encoding = [System.Text.Encoding]::Unicode
+        $encoding = [System.Text.Encoding]::UTF8
         $requestBuffer = $encoding.GetBytes($request)
 
         $wasPipeBroken = $false
@@ -74,7 +74,6 @@ function Get-GitStatusFromCache
             } while ($bytesRead -eq $chunkSize)
 
             $response = $encoding.GetString($responseBuffer, 0, $totalBytesRead)
-            $response = $response.Replace('""', '[]')
             $responseObject = ConvertFrom-Json $response
             return $responseObject
         }
