@@ -12,7 +12,7 @@ if (Test-Path $exePath)
 }
 
 Write-Host "Downloading $exePath..."
-wget -Uri "https://github.com/cmarcusreid/git-status-cache/releases/download/v0.1.2-alpha/GitStatusCache.exe" -OutFile "$exePath"
+wget -Uri "https://github.com/cmarcusreid/git-status-cache/releases/download/v0.1.3-alpha/GitStatusCache.exe" -OutFile "$exePath"
 
 # Adapted from http://www.west-wind.com/Weblog/posts/197245.aspx
 function Get-FileEncoding($Path)
