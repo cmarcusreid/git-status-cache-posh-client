@@ -5,3 +5,4 @@ Push-Location $psScriptRoot
 Pop-Location
 
 Export-ModuleMember -Function @('Get-GitStatusFromCache')
+Export-ModuleMember -Function @('Restart-GitStatusCache')

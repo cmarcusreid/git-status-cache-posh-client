@@ -1,3 +1,15 @@
+function Start-GitStatusCache
+{
+    $process = Get-Process -Name "GitStatusCache" -ErrorAction SilentlyContinue
+    if ($process -eq $null)
+    {
+        $scriptDirectory = Split-Path $PSCommandPath -Parent
+        $installDirectory = Join-Path $scriptDirectory "bin"
+        $exePath = Join-Path $installDirectory "GitStatusCache.exe"
+        Start-Process -FilePath $exePath -ArgumentList "--fileLogging -v"
+    }
+}
+
 function Dispose-Pipe
 {
     $Global:GitStatusCacheClientPipe.Dispose()
@@ -13,31 +25,22 @@ function Initialize-Pipe
 
     if ($Global:GitStatusCacheClientPipe -eq $null)
     {
-        $process = Get-Process -Name "GitStatusCache" -ErrorAction SilentlyContinue
-        if ($process -eq $null)
-        {
-            $scriptDirectory = Split-Path $PSCommandPath -Parent
-            $installDirectory = Join-Path $scriptDirectory "bin"
-            $exePath = Join-Path $installDirectory "GitStatusCache.exe"
-            Start-Process -FilePath $exePath -ArgumentList "--fileLogging -v"
-        }
-
+        Start-GitStatusCache
         $Global:GitStatusCacheClientPipe = new-object System.IO.Pipes.NamedPipeClientStream '.','GitStatusCache','InOut','WriteThrough'
         $Global:GitStatusCacheClientPipe.Connect(100)
         $Global:GitStatusCacheClientPipe.ReadMode = 'Message'
     }
 }
 
-function Get-GitStatusFromCache
+function Send-RequestToGitStatusCache($requestJson)
 {
     Initialize-Pipe
 
     $remainingRetries = 1
     while ($remainingRetries -ge 0)
     {
-        $request = new-object psobject -property @{ Version = 1; Action = "GetStatus"; Path = (Get-Location).Path } | ConvertTo-Json -Compress
         $encoding = [System.Text.Encoding]::UTF8
-        $requestBuffer = $encoding.GetBytes($request)
+        $requestBuffer = $encoding.GetBytes($requestJson)
 
         $wasPipeBroken = $false
         try
@@ -78,4 +81,22 @@ function Get-GitStatusFromCache
             return $responseObject
         }
     }
+}
+
+function Stop-GitStatusCache
+{
+    $request = new-object psobject -property @{ Version = 1; Action = "Shutdown" } | ConvertTo-Json -Compress
+    return Send-RequestToGitStatusCache($request)
+}
+
+function Restart-GitStatusCache
+{
+    Stop-GitStatusCache
+    Initialize-Pipe
+}
+
+function Get-GitStatusFromCache
+{
+    $request = new-object psobject -property @{ Version = 1; Action = "GetStatus"; Path = (Get-Location).Path } | ConvertTo-Json -Compress
+    return Send-RequestToGitStatusCache($request)
 }
