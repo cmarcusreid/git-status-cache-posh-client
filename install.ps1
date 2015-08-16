@@ -1,6 +1,10 @@
 $scriptDirectory = Split-Path $MyInvocation.MyCommand.Path -Parent
 $installDirectory = Join-Path $scriptDirectory "bin"
-New-Item -ItemType Directory -Force -Path $installDirectory > $null
+if(-not (Test-Path $installDirectory))
+{
+    Write-Host "Creating directory for GitStatusCache.exe.`n$installDirectory"
+    New-Item -ItemType Directory -Force -Path $installDirectory -ErrorAction Stop
+}
 
 Stop-Process -Name "GitStatusCache" -Force -ErrorAction SilentlyContinue
 Start-Sleep -m 50
@@ -11,7 +15,7 @@ if (Test-Path $exePath)
     Remove-Item "$exePath"
 }
 
-Write-Host "Downloading $exePath..."
+Write-Host "Downloading $exePath."
 wget -Uri "https://github.com/cmarcusreid/git-status-cache/releases/download/v0.1.5-alpha/GitStatusCache.exe" -OutFile "$exePath"
 
 # Adapted from http://www.west-wind.com/Weblog/posts/197245.aspx
@@ -31,13 +35,21 @@ function Get-FileEncoding($Path)
     }
 }
 
+if(-not (Test-Path $PROFILE))
+{
+    Write-Host "Creating PowerShell profile.`n$PROFILE"
+    New-Item $PROFILE -Force -Type File -ErrorAction Stop
+}
+
 $profileLine = "Import-Module '$scriptDirectory\GitStatusCachePoshClient.psm1'"
 if(Select-String -Path $PROFILE -Pattern $profileLine -Quiet -SimpleMatch)
 {
+    Write-Host 'Found existing git-status-cache-posh-client import in $PROFILE.'
+    Write-Host 'git-status-cache-posh-client successfully installed!'
     return
 }
 
-Write-Host "Adding git-status-cache-posh-client to profile..."
+Write-Host "Adding git-status-cache-posh-client to profile."
 @"
 
 # Import git-status-cache-posh-client
