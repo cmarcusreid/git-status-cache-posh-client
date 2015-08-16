@@ -6,7 +6,7 @@ function Start-GitStatusCache
         $scriptDirectory = Split-Path $PSCommandPath -Parent
         $installDirectory = Join-Path $scriptDirectory "bin"
         $exePath = Join-Path $installDirectory "GitStatusCache.exe"
-        Start-Process -FilePath $exePath -ArgumentList "--fileLogging -v"
+        Start-Process -FilePath $exePath
     }
 }
 
