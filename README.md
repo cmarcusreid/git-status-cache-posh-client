@@ -10,32 +10,50 @@ Register `GitStatusCachePoshClient.psm1` with `Import-Module` to make the `Get-G
 
 	ModuleType Version    Name                                ExportedCommands
 	---------- -------    ----                                ----------------
-	Script     0.0        GitStatusCachePoshClient            Get-GitStatusFromCache
+	Script     0.0        GitStatusCachePoshClient            {Get-GitStatusCacheStatistics, Get-GitStatusFromCache, Restart-GitStatusCache}
 
 ##Usage##
 
 Sample output:
-
-	D:\git-status-cache-posh-client [master +1 ~1 -0 !]> Get-GitStatusFromCache
+	
+	D:\git-status-cache-posh-client [master +0 ~1 -0]> Get-GitStatusFromCache
 	
 	Version           : 1
 	Path              : D:\git-status-cache-posh-client
 	RepoPath          : D:/git-status-cache-posh-client/.git/
-	State             : {}
+	WorkingDir        : D:/git-status-cache-posh-client/
+	State             :
 	Branch            : master
 	Upstream          : origin/master
 	AheadBy           : 0
 	BehindBy          : 0
 	IndexAdded        : {}
-	IndexModified     : {}
+	IndexModified     : {README.md}
 	IndexDeleted      : {}
 	IndexTypeChange   : {}
 	IndexRenamed      : {}
-	WorkingAdded      : {README.md}
-	WorkingModified   : {GitStatusCachePoshClient.psm1}
+	WorkingAdded      : {}
+	WorkingModified   : {}
 	WorkingDeleted    : {}
 	WorkingTypeChange : {}
 	WorkingRenamed    : {}
 	WorkingUnreadable : {}
 	Ignored           : {}
 	Conflicted        : {}
+	
+	
+	D:\git-status-cache-posh-client [master +0 ~1 -0]> Get-GitStatusCacheStatistics
+	
+	Version                        : 1
+	Uptime                         : 00:05:11
+	TotalGetStatusRequests         : 85
+	AverageMillisecondsInGetStatus : 0.572932
+	MinimumMillisecondsInGetStatus : 0.248636
+	MaximumMillisecondsInGetStatus : 4.204662
+	CacheHits                      : 75
+	CacheMisses                    : 10
+	EffectiveCachePrimes           : 1
+	TotalCachePrimes               : 7
+	EffectiveCacheInvalidations    : 10
+	TotalCacheInvalidations        : 77
+	FullCacheInvalidations         : 0
