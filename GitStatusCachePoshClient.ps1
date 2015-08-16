@@ -100,3 +100,9 @@ function Get-GitStatusFromCache
     $request = new-object psobject -property @{ Version = 1; Action = "GetStatus"; Path = (Get-Location).Path } | ConvertTo-Json -Compress
     return Send-RequestToGitStatusCache($request)
 }
+
+function Get-GitStatusCacheStatistics
+{
+    $request = new-object psobject -property @{ Version = 1; Action = "GetCacheStatistics"; } | ConvertTo-Json -Compress
+    return Send-RequestToGitStatusCache($request)
+}
