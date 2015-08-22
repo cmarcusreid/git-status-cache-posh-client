@@ -16,7 +16,21 @@ if (Test-Path $exePath)
 }
 
 Write-Host "Downloading $exePath."
-wget -Uri "https://github.com/cmarcusreid/git-status-cache/releases/download/v0.1.5-alpha/GitStatusCache.exe" -OutFile "$exePath"
+wget -Uri "https://github.com/cmarcusreid/git-status-cache/releases/download/v1.0.0/GitStatusCache.exe" -OutFile "$exePath"
+
+if(-not (Test-Path $PROFILE))
+{
+    Write-Host "Creating PowerShell profile.`n$PROFILE"
+    New-Item $PROFILE -Force -Type File -ErrorAction Stop
+}
+
+$profileLine = "Import-Module '$scriptDirectory\GitStatusCachePoshClient.psm1'"
+if(Select-String -Path $PROFILE -Pattern $profileLine -Quiet -SimpleMatch)
+{
+    Write-Host 'Found existing git-status-cache-posh-client import in $PROFILE.'
+    Write-Host 'git-status-cache-posh-client successfully installed!'
+    return
+}
 
 # Adapted from http://www.west-wind.com/Weblog/posts/197245.aspx
 function Get-FileEncoding($Path)
@@ -33,20 +47,6 @@ function Get-FileEncoding($Path)
         '^0000feff' { return 'utf32' }
         default     { return 'ascii' }
     }
-}
-
-if(-not (Test-Path $PROFILE))
-{
-    Write-Host "Creating PowerShell profile.`n$PROFILE"
-    New-Item $PROFILE -Force -Type File -ErrorAction Stop
-}
-
-$profileLine = "Import-Module '$scriptDirectory\GitStatusCachePoshClient.psm1'"
-if(Select-String -Path $PROFILE -Pattern $profileLine -Quiet -SimpleMatch)
-{
-    Write-Host 'Found existing git-status-cache-posh-client import in $PROFILE.'
-    Write-Host 'git-status-cache-posh-client successfully installed!'
-    return
 }
 
 Write-Host "Adding git-status-cache-posh-client to profile."
