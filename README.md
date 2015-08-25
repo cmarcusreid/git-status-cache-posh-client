@@ -4,7 +4,7 @@ PowerShell client for retrieving git repository information from [git-status-cac
 
 ## Setup ##
 
-Register `GitStatusCachePoshClient.psm1` with `Import-Module` to make the `Get-GitStatusFromCache` command available.
+Run install.ps1 to download GitStatusCache.exe and add the module registration to your $PROFILE. This will make the `Get-GitStatusFromCache` command available.
 
 	D:\git-status-cache-posh-client [master +1 ~0 -0 !]> Get-Module GitStatusCachePoshClient
 
