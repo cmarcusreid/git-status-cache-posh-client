@@ -1,26 +1,116 @@
+function Get-BinPath
+{
+    $scriptDirectory = Split-Path $PSCommandPath -Parent
+    return Join-Path $scriptDirectory "bin"
+}
+
+function Get-ExecutablePath
+{
+    $binPath = Get-BinPath
+    return Join-Path $binPath "GitStatusCache.exe"
+}
+
+function Test-Release($release)
+{
+    # This script understands the named pipe protocol used by V1 git-status-cache releases.
+    if (-not $release.tag_name.StartsWith("v1."))
+    {
+        return $false
+    }
+
+    foreach ($asset in $release.assets)
+    {
+        if ($asset.browser_download_url.EndsWith("GitStatusCache.exe"))
+        {
+            return $true;
+        }
+    }
+
+    return $false
+}
+
+function Get-ExecutableDownloadUrl
+{
+    $release = wget -Uri "https://api.github.com/repos/cmarcusreid/git-status-cache/releases/latest" | ConvertFrom-Json
+    if (-not (Test-Release $release))
+    {
+        Write-Host -ForegroundColor Yellow "Latest git-status-cache release is not compatible with this version of git-status-cache-posh-client."
+        Write-Host -ForegroundColor Yellow "Please update git-status-cache-posh-client."
+        Write-Host -ForegroundColor Yellow "Falling back to latest compatible release of git-status-cache."
+        $allReleases = wget -Uri "https://api.github.com/repos/cmarcusreid/git-status-cache/releases" | ConvertFrom-Json | Sort-Object -Descending -Property "published_at"
+        foreach ($candidateRelease in $allReleases)
+        {
+            if (Test-Release $candidateRelease)
+            {
+                $release = $candidateRelease
+                break
+            }
+        }
+    }
+
+    foreach ($asset in $release.assets)
+    {
+        if ($asset.browser_download_url.EndsWith("GitStatusCache.exe"))
+        {
+            return $asset.browser_download_url;
+        }
+    }
+
+    Write-Error "Failed to find GitStatusCache.exe download URL."
+}
+
+function Update-GitStatusCache
+{
+    $process = Get-Process -Name "GitStatusCache" -ErrorAction SilentlyContinue
+    if ($process -ne $null)
+    {
+        Stop-Process -Name "GitStatusCache" -Force -ErrorAction SilentlyContinue
+        Start-Sleep -m 50
+    }
+
+    $binPath = Get-BinPath
+    if(-not (Test-Path $binPath))
+    {
+        Write-Host -ForegroundColor Green "`nCreating directory for GitStatusCache.exe at $binPath"
+        New-Item -ItemType Directory -Force -Path $binPath -ErrorAction Stop
+    }
+
+    $executablePath = Join-Path $binPath "GitStatusCache.exe"
+    if (Test-Path $executablePath)
+    {
+        Remove-Item "$executablePath"
+    }
+
+    Write-Host -ForegroundColor Green "Downloading $executablePath."
+    $executableUrl = Get-ExecutableDownloadUrl
+    wget -Uri $executableUrl -OutFile "$executablePath"
+}
+
 function Start-GitStatusCache
 {
     $process = Get-Process -Name "GitStatusCache" -ErrorAction SilentlyContinue
     if ($process -eq $null)
     {
-        $scriptDirectory = Split-Path $PSCommandPath -Parent
-        $installDirectory = Join-Path $scriptDirectory "bin"
-        $exePath = Join-Path $installDirectory "GitStatusCache.exe"
-        Start-Process -FilePath $exePath
+        $executablePath = Get-ExecutablePath
+        if (-not (Test-Path $executablePath))
+        {
+            Update-GitStatusCache
+        }
+        Start-Process -FilePath $executablePath
     }
 }
 
-function Dispose-Pipe
+function Disconnect-Pipe
 {
     $Global:GitStatusCacheClientPipe.Dispose()
     $Global:GitStatusCacheClientPipe = $null
 }
 
-function Initialize-Pipe
+function Connect-Pipe
 {
     if ($Global:GitStatusCacheClientPipe -ne $null -and -not $Global:GitStatusCacheClientPipe.IsConnected)
     {
-        Dispose-Pipe
+        Disconnect-Pipe
     }
 
     if ($Global:GitStatusCacheClientPipe -eq $null)
@@ -34,7 +124,7 @@ function Initialize-Pipe
 
 function Send-RequestToGitStatusCache($requestJson)
 {
-    Initialize-Pipe
+    Connect-Pipe
 
     $remainingRetries = 1
     while ($remainingRetries -ge 0)
@@ -49,8 +139,8 @@ function Send-RequestToGitStatusCache($requestJson)
         }
         catch [system.io.ioexception]
         {
-            Dispose-Pipe
-            Initialize-Pipe
+            Disconnect-Pipe
+            Connect-Pipe
             --$remainingRetries
             $wasPipeBroken = $true
         }
@@ -92,7 +182,7 @@ function Stop-GitStatusCache
 function Restart-GitStatusCache
 {
     Stop-GitStatusCache
-    Initialize-Pipe
+    Connect-Pipe
 }
 
 function Get-GitStatusFromCache
