@@ -1,34 +1,18 @@
 $scriptDirectory = Split-Path $MyInvocation.MyCommand.Path -Parent
-$installDirectory = Join-Path $scriptDirectory "bin"
-if(-not (Test-Path $installDirectory))
-{
-    Write-Host "Creating directory for GitStatusCache.exe.`n$installDirectory"
-    New-Item -ItemType Directory -Force -Path $installDirectory -ErrorAction Stop
-}
-
-Stop-Process -Name "GitStatusCache" -Force -ErrorAction SilentlyContinue
-Start-Sleep -m 50
-
-$exePath = Join-Path $installDirectory "GitStatusCache.exe"
-if (Test-Path $exePath)
-{
-    Remove-Item "$exePath"
-}
-
-Write-Host "Downloading $exePath."
-wget -Uri "https://github.com/cmarcusreid/git-status-cache/releases/download/v1.0.0/GitStatusCache.exe" -OutFile "$exePath"
+Import-Module "$scriptDirectory\GitStatusCachePoshClient.psm1"
+Update-GitStatusCache
 
 if(-not (Test-Path $PROFILE))
 {
-    Write-Host "Creating PowerShell profile.`n$PROFILE"
+    Write-Host -ForegroundColor Green "Creating PowerShell profile.`n$PROFILE"
     New-Item $PROFILE -Force -Type File -ErrorAction Stop
 }
 
 $profileLine = "Import-Module '$scriptDirectory\GitStatusCachePoshClient.psm1'"
 if(Select-String -Path $PROFILE -Pattern $profileLine -Quiet -SimpleMatch)
 {
-    Write-Host 'Found existing git-status-cache-posh-client import in $PROFILE.'
-    Write-Host 'git-status-cache-posh-client successfully installed!'
+    Write-Host -ForegroundColor Green 'Found existing git-status-cache-posh-client import in $PROFILE.'
+    Write-Host -ForegroundColor Green 'git-status-cache-posh-client successfully installed!'
     return
 }
 
@@ -49,7 +33,7 @@ function Get-FileEncoding($Path)
     }
 }
 
-Write-Host "Adding git-status-cache-posh-client to profile."
+Write-Host -ForegroundColor Green "Adding git-status-cache-posh-client to profile."
 @"
 
 # Import git-status-cache-posh-client
@@ -57,6 +41,6 @@ $profileLine
 
 "@ | Out-File $PROFILE -Append -Encoding (Get-FileEncoding $PROFILE)
 
-Write-Host 'git-status-cache-posh-client successfully installed!'
-Write-Host 'Please reload your profile for the changes to take effect:'
-Write-Host '    . $PROFILE'
+Write-Host -ForegroundColor Green 'git-status-cache-posh-client successfully installed!'
+Write-Host -ForegroundColor Green 'Please reload your profile for the changes to take effect:'
+Write-Host -ForegroundColor Green '    . $PROFILE'

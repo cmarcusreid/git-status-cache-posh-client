@@ -7,3 +7,4 @@ Pop-Location
 Export-ModuleMember -Function @('Get-GitStatusFromCache')
 Export-ModuleMember -Function @('Get-GitStatusCacheStatistics')
 Export-ModuleMember -Function @('Restart-GitStatusCache')
+Export-ModuleMember -Function @('Update-GitStatusCache')
