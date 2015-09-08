@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>git-status-cache-posh-client</id>
+    <title>git-status-cache-posh-client</title>
+    <version>1.0.0</version>
+    <authors>Marcus Reid</authors>
+    <owners>Marcus Reid</owners>
+    <summary>git-status-cache-posh-client - PowerShell client for git-status-cache</summary>
+    <description>PowerShell client for retrieving git repository information from [git-status-cache](https://github.com/cmarcusreid/git-status-cache). Communicates with the cache process via named pipe.</description>
+    <projectUrl>https://github.com/cmarcusreid/git-status-cache-posh-client</projectUrl>
+    <projectSourceUrl>https://github.com/cmarcusreid/git-status-cache-posh-client</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/cmarcusreid/git-status-cache-posh-client/issues</bugTrackerUrl>
+    <tags>git-status-cache-posh-client git-status-cache gitstatuscacheposhclient git gitstatuscache</tags>
+    <copyright>2015 Marcus Reid</copyright>
+    <licenseUrl>https://github.com/cmarcusreid/git-status-cache-posh-client/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
