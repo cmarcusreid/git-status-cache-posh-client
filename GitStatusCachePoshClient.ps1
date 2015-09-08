@@ -10,6 +10,22 @@ function Get-ExecutablePath
     return Join-Path $binPath "GitStatusCache.exe"
 }
 
+function Remove-GitStatusCache
+{
+    $process = Get-Process -Name "GitStatusCache" -ErrorAction SilentlyContinue
+    if ($process -ne $null)
+    {
+        Stop-Process -Name "GitStatusCache" -Force -ErrorAction SilentlyContinue
+        Start-Sleep -m 50
+    }
+
+    $binPath = Get-BinPath
+    if (Test-Path $binPath)
+    {
+        Remove-Item -Path $binPath -Force -Recurse -ErrorAction Stop
+    }
+}
+
 function Test-Release($release)
 {
     # This script understands the named pipe protocol used by V1 git-status-cache releases.
@@ -61,18 +77,13 @@ function Get-ExecutableDownloadUrl
 
 function Update-GitStatusCache
 {
-    $process = Get-Process -Name "GitStatusCache" -ErrorAction SilentlyContinue
-    if ($process -ne $null)
-    {
-        Stop-Process -Name "GitStatusCache" -Force -ErrorAction SilentlyContinue
-        Start-Sleep -m 50
-    }
+    Remove-GitStatusCache
 
     $binPath = Get-BinPath
     if(-not (Test-Path $binPath))
     {
-        Write-Host -ForegroundColor Green "`nCreating directory for GitStatusCache.exe at $binPath"
-        New-Item -ItemType Directory -Force -Path $binPath -ErrorAction Stop
+        Write-Host -ForegroundColor Green "Creating directory for GitStatusCache.exe at $binPath."
+        New-Item -ItemType Directory -Force -Path $binPath -ErrorAction Stop | Out-Null
     }
 
     $executablePath = Join-Path $binPath "GitStatusCache.exe"

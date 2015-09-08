@@ -38,7 +38,6 @@ Write-Host -ForegroundColor Green "Adding git-status-cache-posh-client to profil
 
 # Import git-status-cache-posh-client
 $profileLine
-
 "@ | Out-File $PROFILE -Append -Encoding (Get-FileEncoding $PROFILE)
 
 Write-Host -ForegroundColor Green 'git-status-cache-posh-client successfully installed!'
