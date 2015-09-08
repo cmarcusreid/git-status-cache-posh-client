@@ -1,3 +1,7 @@
+# Automatic download is suppressed after a call to Remove-GitStatusCache to
+# prevent unintentional reintroduction during uninstall.
+$Script:EnableAutomaticDownload = $true
+
 function Get-BinPath
 {
     $scriptDirectory = Split-Path $PSCommandPath -Parent
@@ -12,6 +16,8 @@ function Get-ExecutablePath
 
 function Remove-GitStatusCache
 {
+    $Script:EnableAutomaticDownload = $false
+
     $process = Get-Process -Name "GitStatusCache" -ErrorAction SilentlyContinue
     if ($process -ne $null)
     {
@@ -78,6 +84,7 @@ function Get-ExecutableDownloadUrl
 function Update-GitStatusCache
 {
     Remove-GitStatusCache
+    $Script:EnableAutomaticDownload = $true
 
     $binPath = Get-BinPath
     if(-not (Test-Path $binPath))
@@ -105,10 +112,21 @@ function Start-GitStatusCache
         $executablePath = Get-ExecutablePath
         if (-not (Test-Path $executablePath))
         {
-            Update-GitStatusCache
+            if ($Script:EnableAutomaticDownload)
+            {
+                Write-Host ""
+                Update-GitStatusCache
+            }
+            else
+            {
+                Write-Error "GitStatusCache.exe was not found. Call Update-GitStatusCache to download."
+                return $false
+            }
         }
         Start-Process -FilePath $executablePath
     }
+
+    return $true
 }
 
 function Disconnect-Pipe
@@ -124,18 +142,28 @@ function Connect-Pipe
         Disconnect-Pipe
     }
 
+    $result = $true
     if ($Global:GitStatusCacheClientPipe -eq $null)
     {
-        Start-GitStatusCache
-        $Global:GitStatusCacheClientPipe = new-object System.IO.Pipes.NamedPipeClientStream '.','GitStatusCache','InOut','WriteThrough'
-        $Global:GitStatusCacheClientPipe.Connect(100)
-        $Global:GitStatusCacheClientPipe.ReadMode = 'Message'
+        $result = Start-GitStatusCache
+        if ($result)
+        {
+            $Global:GitStatusCacheClientPipe = new-object System.IO.Pipes.NamedPipeClientStream '.','GitStatusCache','InOut','WriteThrough'
+            $Global:GitStatusCacheClientPipe.Connect(100)
+            $Global:GitStatusCacheClientPipe.ReadMode = 'Message'
+        }
     }
+
+    return $result
 }
 
 function Send-RequestToGitStatusCache($requestJson)
 {
-    Connect-Pipe
+    $result = Connect-Pipe
+    if (-not $result)
+    {
+        return
+    }
 
     $remainingRetries = 1
     while ($remainingRetries -ge 0)

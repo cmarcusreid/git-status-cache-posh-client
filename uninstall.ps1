@@ -1,7 +1,6 @@
 $scriptDirectory = Split-Path $MyInvocation.MyCommand.Path -Parent
 Import-Module "$scriptDirectory\GitStatusCachePoshClient.psm1"
 
-Write-Host -ForegroundColor Green 'Removing GitStatusCache.exe.'
 Remove-GitStatusCache
 Remove-Module "GitStatusCachePoshClient"
 
