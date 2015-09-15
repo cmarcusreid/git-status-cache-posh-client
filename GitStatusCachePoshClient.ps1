@@ -47,13 +47,13 @@ function Test-Release($release)
 
 function Get-ExecutableDownloadUrl
 {
-    $release = wget -Uri "https://api.github.com/repos/cmarcusreid/git-status-cache/releases/latest" | ConvertFrom-Json
+    $release = wget -Uri "https://api.github.com/repos/cmarcusreid/git-status-cache/releases/latest" -UseBasicParsing | ConvertFrom-Json
     if (-not (Test-Release $release))
     {
         Write-Host -ForegroundColor Yellow "Latest git-status-cache release is not compatible with this version of git-status-cache-posh-client."
         Write-Host -ForegroundColor Yellow "Please update git-status-cache-posh-client."
         Write-Host -ForegroundColor Yellow "Falling back to latest compatible release of git-status-cache."
-        $allReleases = wget -Uri "https://api.github.com/repos/cmarcusreid/git-status-cache/releases" | ConvertFrom-Json | Sort-Object -Descending -Property "published_at"
+        $allReleases = wget -Uri "https://api.github.com/repos/cmarcusreid/git-status-cache/releases" -UseBasicParsing | ConvertFrom-Json | Sort-Object -Descending -Property "published_at"
         foreach ($candidateRelease in $allReleases)
         {
             if (Test-Release $candidateRelease)
@@ -93,7 +93,7 @@ function Update-GitStatusCache
 
     Write-Host -ForegroundColor Green "Downloading $executablePath."
     $executableUrl = Get-ExecutableDownloadUrl
-    wget -Uri $executableUrl -OutFile "$executablePath"
+    wget -Uri $executableUrl -UseBasicParsing -OutFile "$executablePath"
 }
 
 function Start-GitStatusCache
