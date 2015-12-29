@@ -12,6 +12,12 @@ Run install.ps1 to download GitStatusCache.exe and add the module registration t
 	---------- -------    ----                                ----------------
 	Script     0.0        GitStatusCachePoshClient            {Get-GitStatusCacheStatistics, Get-GitStatusFromCache, Restart-GitStatusCache}
 
+### Chocolatey package ###
+
+Alternatively git-status-cache-posh-client can be installed via chocolatey.
+
+	choco install git-status-cache-posh-client
+
 ##Usage##
 
 Sample output:
