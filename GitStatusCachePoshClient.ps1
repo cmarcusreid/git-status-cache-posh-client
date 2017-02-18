@@ -107,7 +107,15 @@ function Start-GitStatusCache
             Throw [System.InvalidOperationException] "GitStatusCache.exe was not found. Call Update-GitStatusCache to download."
             return $false
         }
-        Start-Process -FilePath $executablePath
+
+        if ($Global:GitStatusCacheLoggingEnabled -eq $true)
+        {
+            Start-Process -FilePath $executablePath -ArgumentList "--fileLogging --spam"
+        }
+        else
+        {
+            Start-Process -FilePath $executablePath
+        }
     }
 }
 
