@@ -108,9 +108,15 @@ function Start-GitStatusCache
             return $false
         }
 
-        if ($Global:GitStatusCacheLoggingEnabled -eq $true)
+        $cacheArgumentList = $Global:GitStatusCacheArgumentList;
+        if ($cacheArgumentList -eq $null -and $Global:GitStatusCacheLoggingEnabled -eq $true)
         {
-            Start-Process -FilePath $executablePath -ArgumentList "--fileLogging --spam"
+            $cacheArgumentList = "--fileLogging --spam"
+        }
+        
+        if ($cacheArgumentList -ne $null)
+        {
+            Start-Process -FilePath $executablePath -ArgumentList $cacheArgumentList
         }
         else
         {
