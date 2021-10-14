@@ -19,7 +19,11 @@ if(Select-String -Path $PROFILE -Pattern $profileLine -Quiet -SimpleMatch)
 # Adapted from http://www.west-wind.com/Weblog/posts/197245.aspx
 function Get-FileEncoding($Path)
 {
-    $bytes = [byte[]](Get-Content $Path -Encoding byte -ReadCount 4 -TotalCount 4)
+    if ($PSVersionTable.PSCompatibleVersions -contains "3.0") {
+        $bytes = [byte[]](Get-Content $Path -Raw -ReadCount 4 -TotalCount 4)
+    } else {
+        $bytes = [byte[]](Get-Content $Path -Encoding byte -ReadCount 4 -TotalCount 4)
+    }
 
     if(!$bytes) { return 'utf8' }
 
